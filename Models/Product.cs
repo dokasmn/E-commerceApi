@@ -7,8 +7,6 @@ public class Product
     public string? ProductThumbnail { get; set; }
     public bool? ProductIsFeatured { get; set; }
 
-    public Product() {}
-
     public Product(string productTitle)
     {
         this.ProductTitle = productTitle;
