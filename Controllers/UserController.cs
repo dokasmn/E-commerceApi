@@ -28,7 +28,7 @@ namespace ECommerceApi.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
-            return Ok(new { user.Id, user.Name, user.Email });
+            return Ok(new { user.Id, user.UserName, user.Email });
         }
 
 
@@ -39,7 +39,7 @@ namespace ECommerceApi.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
-            user.Name = profileDto.Name;
+            user.UserName = profileDto.UserName;
             await _userManager.UpdateAsync(user);
             return NoContent();
         }
