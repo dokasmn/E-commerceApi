@@ -6,7 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 // Middleware do projeto
-var builder = WebApplication.CreateBuilder(args); // Cria um construtor da aplicação
+var builder = WebApplication.CreateBuilder(args);
 
 // Comandos para se conectar com um banco de dados MySQL existente
 builder.Services.AddDbContext<EcommerceDb>(options =>
@@ -15,7 +15,7 @@ builder.Services.AddDbContext<EcommerceDb>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // Adiciona serviços de controllers
-builder.Services.AddControllers(); // Adicione esta linha
+builder.Services.AddControllers();
 
 // Adiciona configurações de autenticação JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
