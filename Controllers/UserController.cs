@@ -13,11 +13,12 @@ namespace ECommerceApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserManager<User> _userManager;
+        private readonly EcommerceDb _context;
 
-
-        public UserController(UserManager<User> userManager)
+        public UserController(UserManager<User> userManager, EcommerceDb context)
         {
             _userManager = userManager;
+            _context = context;
         }
 
 
@@ -26,6 +27,7 @@ namespace ECommerceApi.Controllers
         public async Task<IActionResult> GetProfile()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)return Unauthorized();
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
             return Ok(new { user.Id, user.UserName, user.Email });
@@ -37,6 +39,7 @@ namespace ECommerceApi.Controllers
         public async Task<IActionResult> UpdateProfile([FromBody] UserProfileDto profileDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)return Unauthorized();
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
             user.UserName = profileDto.UserName;
@@ -49,11 +52,16 @@ namespace ECommerceApi.Controllers
         public async Task<IActionResult> AddToCart([FromBody] CartItemDto cartItemDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)return Unauthorized();
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
-            // gerar um construtor para o CartItem
-            // CartItem item =
-            user.UserCart.CartCartItems.Add(cartItemDto.ProductId, cartItemDto.Quantity);
+
+            var cart = user.UserCart ?? new Cart { CartUser = user, CartCartItems = new List<CartItem>() };
+            var cartProduct = await _context.Products.FindAsync(cartItemDto.ProductId);
+            if (cartProduct == null) return NotFound("Produto não encontrado");
+
+            CartItem item = new CartItem(cart, cartProduct);
+            cart.CartCartItems.Add(item);
             await _userManager.UpdateAsync(user);
             return Ok(user.UserCart);
         }

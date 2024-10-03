@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
+<<<<<<< HEAD
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "E-commerceApi", "E-commerceApi.csproj", "{2773F389-B92A-47E7-B6F8-8169C0457150}"
+=======
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "E-commerceApi", "E-commerceApi.csproj", "{EF2401CB-77BA-4E64-B314-06AF3372B0DE}"
+>>>>>>> d73614a925533ab037d12de2e5a969bece20acf7
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +15,26 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+<<<<<<< HEAD
 		{2773F389-B92A-47E7-B6F8-8169C0457150}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2773F389-B92A-47E7-B6F8-8169C0457150}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2773F389-B92A-47E7-B6F8-8169C0457150}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2773F389-B92A-47E7-B6F8-8169C0457150}.Release|Any CPU.Build.0 = Release|Any CPU
+=======
+		{EF2401CB-77BA-4E64-B314-06AF3372B0DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF2401CB-77BA-4E64-B314-06AF3372B0DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF2401CB-77BA-4E64-B314-06AF3372B0DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF2401CB-77BA-4E64-B314-06AF3372B0DE}.Release|Any CPU.Build.0 = Release|Any CPU
+>>>>>>> d73614a925533ab037d12de2e5a969bece20acf7
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
+<<<<<<< HEAD
 		SolutionGuid = {29CD3FF4-B965-465E-ADEC-16BF4CCD955F}
+=======
+		SolutionGuid = {D29F50A2-2342-423B-BFC5-9EABF3BDFBAB}
+>>>>>>> d73614a925533ab037d12de2e5a969bece20acf7
 	EndGlobalSection
 EndGlobal
