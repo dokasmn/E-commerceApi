@@ -4,68 +4,97 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
-// Middleware do projeto
-var builder = WebApplication.CreateBuilder(args);
 
-// Comandos para se conectar com um banco de dados MySQL existente
-builder.Services.AddDbContext<EcommerceDb>(options =>
-    options.UseMySql("Server=localhost;Database=Ecommerce;User=root;Password=root;",
-    new MySqlServerVersion(new Version(8, 0, 25))));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-// Adiciona serviços de controllers
-builder.Services.AddControllers();
-
-// Adiciona configurações de autenticação JWT
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+namespace EcommerceApi
+{
+    public class Program
     {
-        options.TokenValidationParameters = new TokenValidationParameters
+        public static void Main(string[] args)
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-        };
-    });
+            var builder = WebApplication.CreateBuilder(args);
+            ConfigureServices(builder.Services, builder.Configuration);
+            var app = builder.Build();
+            Configure(app);
+            app.Run();
+        }
 
-builder.Services.AddAuthorization();
+        private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+        {
+            // Comandos para se conectar com um banco de dados MySQL existente
+            services.AddDbContext<EcommerceDb>(options =>
+            options.UseMySql(
+                @$"Server={configuration["Database:server"]};
+                Database={configuration["Database:databaseName"]};
+                User={configuration["Database:databaseUser"]};
+                Password={configuration["Database:databasePassword"]};",
+                new MySqlServerVersion(new Version(8, 0, 25))));
 
-// Adiciona a exploração de endpoints, que é necessária para gerar a documentação da API
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "EcommerceAPI", Version = "v1" });
-});
+            services.AddDatabaseDeveloperPageExceptionFilter();
 
-// Constrói a aplicação a partir das configurações definidas
-var app = builder.Build();
+            // Adiciona serviços de controllers
+            services.AddControllers();
 
-// Se o ambiente for de desenvolvimento, habilita o uso do OpenAPI e configura a interface do Swagger
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "EcommerceAPI v1");
-        c.DocumentTitle = "EcommerceAPI";
-        c.DocExpansion(DocExpansion.List);
-    });
+            // Adiciona configurações de autenticação JWT
+            ConfigureAuthentication(services, configuration);
+
+            services.AddAuthorization();
+
+            // Adiciona a exploração de endpoints, que é necessária para gerar a documentação da API
+            services.AddEndpointsApiExplorer();
+            ConfigureSwagger(services);
+        }
+
+        private static void ConfigureAuthentication(IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = configuration["Jwt:Issuer"],
+                        ValidAudience = configuration["Jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
+                    };
+                });
+        }
+
+        private static void ConfigureSwagger(IServiceCollection services)
+        {
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "EcommerceAPI", Version = "v1" });
+            });
+        }
+
+        private static void Configure(WebApplication app)
+        {
+            // Se o ambiente for de desenvolvimento, habilita o uso do OpenAPI e configura a interface do Swagger
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "EcommerceAPI v1");
+                    c.DocumentTitle = "EcommerceAPI";
+                    c.DocExpansion(DocExpansion.List);
+                });
+            }
+
+            // Habilita o roteamento dos Controllers da aplicação
+            app.UseRouting();
+
+            // Adiciona autenticação e autorização à aplicação
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            // Mapeia os Controllers para o pipeline de requisições
+            app.MapControllers();
+        }
+    }
 }
-
-// Habilita o roteamento dos Controllers da aplicação
-app.UseRouting();
-
-// Adiciona autenticação e autorização à aplicação
-app.UseAuthentication();
-app.UseAuthorization();
-
-// Mapeia os Controllers para o pipeline de requisições
-app.MapControllers();
-
-// Inicia a aplicação
-app.Run();
