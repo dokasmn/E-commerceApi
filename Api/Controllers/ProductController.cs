@@ -42,6 +42,7 @@ namespace ECommerceApi.Controllers
 
 
         [HttpPost]
+        [Authorize(Policy = "ValidatedSeller")]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
             _context.Products.Add(product);
@@ -51,6 +52,7 @@ namespace ECommerceApi.Controllers
 
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutProduct(int id, Product product)
         {
             if (id != product.ProductId)
@@ -78,6 +80,7 @@ namespace ECommerceApi.Controllers
 
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             var product = await _context.Products.FindAsync(id);

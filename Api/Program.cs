@@ -20,6 +20,7 @@ namespace EcommerceApi
             app.Run();
         }
 
+
         private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
             // Comandos para se conectar com um banco de dados MySQL existente
@@ -44,7 +45,11 @@ namespace EcommerceApi
             // Adiciona a exploração de endpoints, que é necessária para gerar a documentação da API
             services.AddEndpointsApiExplorer();
             ConfigureSwagger(services);
+
+            // chama a função que gera as políticas (Policy)
+            ConfigureAuthorizations(services);
         }
+
 
         private static void ConfigureAuthentication(IServiceCollection services, IConfiguration configuration)
         {
@@ -64,6 +69,7 @@ namespace EcommerceApi
                 });
         }
 
+
         private static void ConfigureSwagger(IServiceCollection services)
         {
             services.AddSwaggerGen(c =>
@@ -71,6 +77,7 @@ namespace EcommerceApi
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "EcommerceAPI", Version = "v1" });
             });
         }
+
 
         private static void Configure(WebApplication app)
         {
@@ -95,6 +102,16 @@ namespace EcommerceApi
 
             // Mapeia os Controllers para o pipeline de requisições
             app.MapControllers();
+        }
+
+        // exemplo de autorização
+        private static void ConfigureAuthorizations(IServiceCollection services)
+        {
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("validatedSeller", policy =>
+                policy.RequireClaim("validated","true"));
+            });
         }
     }
 }
