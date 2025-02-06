@@ -4,7 +4,8 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using ECommerceApi.Models;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace EcommerceApi
@@ -14,9 +15,16 @@ namespace EcommerceApi
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // desativar em ambiente de produção.
+            builder.WebHost.UseUrls("http://localhost:5000", "https://localhost:5001");
+
             ConfigureServices(builder.Services, builder.Configuration);
+
             var app = builder.Build();
             Configure(app);
+
+            Console.WriteLine($"Environment: {app.Environment.EnvironmentName}");
             app.Run();
         }
 
@@ -30,9 +38,13 @@ namespace EcommerceApi
                 Database={configuration["Database:databaseName"]};
                 User={configuration["Database:databaseUser"]};
                 Password={configuration["Database:databasePassword"]};",
-                new MySqlServerVersion(new Version(8, 0, 25))));
+                new MySqlServerVersion(new Version(8, 0, 25)))
+            );
 
             services.AddDatabaseDeveloperPageExceptionFilter();
+
+            // Configura o Identity, usado para serviços de autenticação
+            //ConfigureIdentity(services);
 
             // Adiciona serviços de controllers
             services.AddControllers();
@@ -104,6 +116,7 @@ namespace EcommerceApi
             app.MapControllers();
         }
 
+
         // exemplo de autorização
         private static void ConfigureAuthorizations(IServiceCollection services)
         {
@@ -113,5 +126,43 @@ namespace EcommerceApi
                 policy.RequireClaim("validated","true"));
             });
         }
+
+
+        private static void ConfigureIdentity(IServiceCollection services)
+        {
+
+            services.AddIdentity<User, IdentityRole>()
+                .AddEntityFrameworkStores<EcommerceDb>()
+                .AddDefaultTokenProviders();
+
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 6;
+                options.Password.RequiredUniqueChars = 1;
+
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.RequireUniqueEmail = false;
+            });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+                options.LoginPath = "/Identity/Account/Login";
+                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+                options.SlidingExpiration = true;
+            });
+        }
+
+
     }
 }

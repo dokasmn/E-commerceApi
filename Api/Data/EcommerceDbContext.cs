@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using ECommerceApi.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
-public class EcommerceDb : DbContext
+public class EcommerceDb : IdentityDbContext<User>
 {
     public EcommerceDb(DbContextOptions<EcommerceDb> options)
         : base(options) { }

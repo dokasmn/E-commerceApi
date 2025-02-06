@@ -4,8 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using ECommerceApi.Models;
 using ECommerceApi.DTOs;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 
 namespace ECommerceApi.Controllers
 {
@@ -22,6 +21,7 @@ namespace ECommerceApi.Controllers
             _context = context;
         }
 
+
         [Authorize]
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
@@ -32,6 +32,7 @@ namespace ECommerceApi.Controllers
             if (user == null) return NotFound();
             return Ok(new { user.Id, user.UserName, user.Email });
         }
+
 
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UserProfileDto profileDto)
@@ -45,6 +46,7 @@ namespace ECommerceApi.Controllers
             await _userManager.UpdateAsync(user);
             return NoContent();
         }
+
 
         [HttpPost("cart")]
         public async Task<IActionResult> AddToCart([FromBody] CartItemDto cartItemDto)

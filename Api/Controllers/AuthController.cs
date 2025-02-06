@@ -42,16 +42,30 @@ namespace ECommerceApi.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] AuthUserDto registerModel)
         {
+            Console.WriteLine(string.Join("-",30));
+            Console.WriteLine("entrou na função");
             var existingUser = await _userManager.FindByEmailAsync(registerModel.Email);
-            if (existingUser != null)
+            if (existingUser != null) return BadRequest("User with this email already exists.");
+            try
             {
-                return BadRequest("User with this email already exists.");
+                var user = new User { UserName = registerModel.Email, Email = registerModel.Email };
+                var result = await _userManager.CreateAsync(user, registerModel.Password);
+                Console.WriteLine(string.Join("=", 30));
+                Console.WriteLine(result);
+                Console.WriteLine(string.Join("=", 30));
+
+                if (!result.Succeeded) return BadRequest(result.Errors);
+                var token = _jwtTokenService.GenerateToken(user);
+                return Ok(new { Token = token });
             }
-            var user = new User { UserName = registerModel.Email, Email = registerModel.Email };
-            var result = await _userManager.CreateAsync(user, registerModel.Password);
-            if (!result.Succeeded) return BadRequest(result.Errors);
-            var token = _jwtTokenService.GenerateToken(user);
-            return Ok(new { Token = token });
+            catch (Exception ex)
+            {
+                Console.WriteLine(string.Join("+", 30));
+                Console.WriteLine("ERRO:");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(string.Join("+", 30));
+                throw new Exception(ex.Message);
+            }
         }
     }
 }
