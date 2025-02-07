@@ -7,7 +7,7 @@ using System.Text;
 using ECommerceApi.Models;
 using Microsoft.AspNetCore.Identity;
 using Supabase;
-using Microsoft.Extensions.DependencyInjection;
+using ECommerceApi.Data;
 
 
 namespace EcommerceApi
@@ -22,13 +22,22 @@ namespace EcommerceApi
             // desativar em ambiente de produção.
             builder.WebHost.UseUrls("http://localhost:5000", "https://localhost:5001");
 
-            var url = builder.Configuration["Supabase:Url"];
-            var key = builder.Configuration["Supabase:Key"];
-            var options = new SupabaseOptions
+            builder.Services.AddDbContext<EcommerceDb>(options =>
             {
-                AutoConnectRealtime = true,
-            };
-            builder.Services.AddSingleton(new Supabase.Client(url, key, options));
+                options.UseNpgsql(builder.Configuration["ConnectionStrings:SupabaseConnection"]);
+            });
+
+            builder.Services.AddScoped<Supabase.Client>(_ =>
+                new Supabase.Client(
+                    builder.Configuration["Supabase:Url"],
+                    builder.Configuration["Supabase:Key"],
+                    new SupabaseOptions
+                    {
+                        AutoRefreshToken = true,
+                        AutoConnectRealtime = true,
+                        // SessionHandler = new SupabaseSessionHandler() <-- This must be implemented by the developer
+                    }));
+
 
             ConfigureServices(builder.Services, builder.Configuration);
 

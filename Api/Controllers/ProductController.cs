@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ECommerceApi.Models;
+using ECommerceApi.Data;
 
 
 namespace ECommerceApi.Controllers

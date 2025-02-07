@@ -1,15 +1,26 @@
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+
 namespace ECommerceApi.Models
 {
     public class CartItem
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CartItemId { get; set; }
 
-        // Adicionando as propriedades de chave estrangeira
-        public int CartId { get; set; } // Chave estrangeira para Cart
-        public int ProductId { get; set; } // Chave estrangeira para Product
 
-        // Propriedades de navegação
+        [ForeignKey("fkCarId")]
+        public int CartId { get; set; }
+
+        [ForeignKey("fkProductId")]
+        public int ProductId { get; set; }
+
+        [NotMapped]
         public Cart CartItemCart { get; set; }
+
+        [NotMapped]
         public Product CartItemProduct { get; set; }
 
         public CartItem() { }

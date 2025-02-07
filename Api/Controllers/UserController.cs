@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using ECommerceApi.Models;
 using ECommerceApi.DTOs;
+using ECommerceApi.Data;
 
 
 namespace ECommerceApi.Controllers

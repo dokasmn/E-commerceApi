@@ -18,11 +18,11 @@ namespace E_commerceApi.Migrations
                 {
                     ProductId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ProductTitle = table.Column<string>(type: "text", nullable: false),
-                    ProductDescription = table.Column<string>(type: "text", nullable: true),
-                    ProductPrice = table.Column<double>(type: "double precision", nullable: true),
-                    ProductThumbnail = table.Column<string>(type: "text", nullable: true),
-                    ProductIsFeatured = table.Column<bool>(type: "boolean", nullable: true)
+                    productTitle = table.Column<string>(type: "text", nullable: false),
+                    productDescription = table.Column<string>(type: "text", nullable: true),
+                    productPrice = table.Column<double>(type: "double precision", nullable: true),
+                    productThumbnail = table.Column<string>(type: "text", nullable: true),
+                    productIsFeatured = table.Column<bool>(type: "boolean", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -35,8 +35,8 @@ namespace E_commerceApi.Migrations
                 {
                     UserId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserName = table.Column<string>(type: "text", nullable: false),
-                    UserEmail = table.Column<string>(type: "text", nullable: false),
+                    userName = table.Column<string>(type: "text", nullable: false),
+                    userEmail = table.Column<string>(type: "text", nullable: false),
                     Id = table.Column<string>(type: "text", nullable: true),
                     NormalizedUserName = table.Column<string>(type: "text", nullable: true),
                     Email = table.Column<string>(type: "text", nullable: true),
