@@ -33,18 +33,13 @@ namespace EcommerceApi
         {
             // Comandos para se conectar com um banco de dados MySQL existente
             services.AddDbContext<EcommerceDb>(options =>
-            options.UseMySql(
-                @$"Server={configuration["Database:server"]};
-                Database={configuration["Database:databaseName"]};
-                User={configuration["Database:databaseUser"]};
-                Password={configuration["Database:databasePassword"]};",
-                new MySqlServerVersion(new Version(8, 0, 25)))
+                options.UseNpgsql(configuration.GetConnectionString("SupabaseConnection"))
             );
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             // Configura o Identity, usado para serviços de autenticação
-            //ConfigureIdentity(services);
+            ConfigureIdentity(services);
 
             // Adiciona serviços de controllers
             services.AddControllers();
@@ -130,14 +125,15 @@ namespace EcommerceApi
 
         private static void ConfigureIdentity(IServiceCollection services)
         {
-
+            // configurações gerais do Identity
             services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<EcommerceDb>()
                 .AddDefaultTokenProviders();
 
-
+            // configurando opções do Identity
             services.Configure<IdentityOptions>(options =>
             {
+                // opções de senha
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
                 options.Password.RequireNonAlphanumeric = true;
@@ -145,14 +141,20 @@ namespace EcommerceApi
                 options.Password.RequiredLength = 6;
                 options.Password.RequiredUniqueChars = 1;
 
+                // opções de perda de conta
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.AllowedForNewUsers = true;
 
+                // opções de usuário
                 options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
                 options.User.RequireUniqueEmail = false;
+
+                options.SignIn.RequireConfirmedEmail = true;
+                options.SignIn.RequireConfirmedPhoneNumber = false;
             });
 
+            // configuração de cookies
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.HttpOnly = true;
@@ -161,6 +163,16 @@ namespace EcommerceApi
                 options.AccessDeniedPath = "/Identity/Account/AccessDenied";
                 options.SlidingExpiration = true;
             });
+
+            // configuração de hash
+            services.Configure<PasswordHasherOptions>(option =>
+            {
+                option.IterationCount = 12000;
+            });
+
+            // configuração de 
+            services.Configure<SecurityStampValidatorOptions>(o => 
+                o.ValidationInterval = TimeSpan.FromMinutes(1));
         }
 
 
