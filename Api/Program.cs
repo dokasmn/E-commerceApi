@@ -6,12 +6,15 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using ECommerceApi.Models;
 using Microsoft.AspNetCore.Identity;
+using Supabase;
+using Microsoft.Extensions.DependencyInjection;
 
 
 namespace EcommerceApi
 {
     public class Program
     {
+
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -19,27 +22,30 @@ namespace EcommerceApi
             // desativar em ambiente de produção.
             builder.WebHost.UseUrls("http://localhost:5000", "https://localhost:5001");
 
+            var url = builder.Configuration["Supabase:Url"];
+            var key = builder.Configuration["Supabase:Key"];
+            var options = new SupabaseOptions
+            {
+                AutoConnectRealtime = true,
+            };
+            builder.Services.AddSingleton(new Supabase.Client(url, key, options));
+
             ConfigureServices(builder.Services, builder.Configuration);
 
             var app = builder.Build();
             Configure(app);
 
-            Console.WriteLine($"Environment: {app.Environment.EnvironmentName}");
             app.Run();
         }
 
 
         private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            // Comandos para se conectar com um banco de dados MySQL existente
-            services.AddDbContext<EcommerceDb>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("SupabaseConnection"))
-            );
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             // Configura o Identity, usado para serviços de autenticação
-            ConfigureIdentity(services);
+            // ConfigureIdentity(services);
 
             // Adiciona serviços de controllers
             services.AddControllers();

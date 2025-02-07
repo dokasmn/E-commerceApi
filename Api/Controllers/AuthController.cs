@@ -1,8 +1,12 @@
+// libs
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+// project
 using ECommerceApi.DTOs;
 using ECommerceApi.Models;
+using ECommerceApi.Services;
 
 
 namespace ECommerceApi.Controllers
@@ -15,56 +19,47 @@ namespace ECommerceApi.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IJwtTokenService _jwtTokenService;
+        private readonly AuthService _authService;
 
 
-        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IJwtTokenService jwtTokenService)
+        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IJwtTokenService jwtTokenService, AuthService authService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _jwtTokenService = jwtTokenService;
+            _authService = authService;
         }
 
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] AuthUserDto loginModel)
         {
-            var user = await _userManager.FindByEmailAsync(loginModel.Email);
-            if (user == null) return Unauthorized();
-
-            var result = await _signInManager.CheckPasswordSignInAsync(user, loginModel.Password, false);
-            if (!result.Succeeded) return Unauthorized();
-
-            var token = _jwtTokenService.GenerateToken(user);
-            return Ok(new { Token = token });
+            try
+            {
+                var token = await _authService.LoginAsync(loginModel.Email, loginModel.Password);
+                return Ok(new { Token = token });
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(new { Message = ex.Message });
+            }
         }
 
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] AuthUserDto registerModel)
         {
-            Console.WriteLine(string.Join("-",30));
-            Console.WriteLine("entrou na função");
-            var existingUser = await _userManager.FindByEmailAsync(registerModel.Email);
-            if (existingUser != null) return BadRequest("User with this email already exists.");
             try
             {
-                var user = new User { UserName = registerModel.Email, Email = registerModel.Email };
-                var result = await _userManager.CreateAsync(user, registerModel.Password);
-                Console.WriteLine(string.Join("=", 30));
-                Console.WriteLine(result);
-                Console.WriteLine(string.Join("=", 30));
-
-                if (!result.Succeeded) return BadRequest(result.Errors);
-                var token = _jwtTokenService.GenerateToken(user);
+                var token = await _authService.RegisterAsync(registerModel.Email, registerModel.Password);
+                Console.WriteLine(string.Join("=",30));
+                Console.WriteLine(token);
+                Console.WriteLine(string.Join("=",30));
                 return Ok(new { Token = token });
             }
             catch (Exception ex)
             {
-                Console.WriteLine(string.Join("+", 30));
-                Console.WriteLine("ERRO:");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(string.Join("+", 30));
-                throw new Exception(ex.Message);
+                return BadRequest(new { Message = ex.Message });
             }
         }
     }

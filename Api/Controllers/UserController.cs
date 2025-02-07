@@ -55,11 +55,14 @@ namespace ECommerceApi.Controllers
             if (userId == null) return Unauthorized();
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
-            var cart = user.UserCart ?? new Cart { CartUserId = user.Id };
+
+            var cart = user.UserCart ?? new Cart { CartUser = user };
+
             var cartProduct = await _context.Products.FindAsync(cartItemDto.ProductId);
             if (cartProduct == null) return NotFound("Produto não encontrado");
+
             var item = new CartItem(cart, cartProduct);
-            cart.CartCartItems.Add(item);
+            cart.CartItems.Add(item);
             if (user.UserCart == null)
             {
                 _context.Carts.Add(cart);
