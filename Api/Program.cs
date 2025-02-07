@@ -1,13 +1,17 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerUI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using ECommerceApi.Models;
 using Microsoft.AspNetCore.Identity;
+
+using Swashbuckle.AspNetCore.SwaggerUI;
+using System.Text;
 using Supabase;
+
+using ECommerceApi.Models;
 using ECommerceApi.Data;
+using ECommerceApi.Services;
+using ECommerceApi.Interfaces;
 
 
 namespace EcommerceApi
@@ -53,8 +57,10 @@ namespace EcommerceApi
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
+            services.AddScoped<IAuthService, AuthService>();
+
             // Configura o Identity, usado para serviços de autenticação
-            // ConfigureIdentity(services);
+            ConfigureIdentity(services);
 
             // Adiciona serviços de controllers
             services.AddControllers();

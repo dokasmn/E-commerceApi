@@ -1,12 +1,12 @@
 // libs
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Supabase;
 
 // project
 using ECommerceApi.DTOs;
 using ECommerceApi.Models;
 using ECommerceApi.Services;
+using ECommerceApi.Interfaces;
 
 
 namespace ECommerceApi.Controllers
@@ -16,17 +16,10 @@ namespace ECommerceApi.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
-        private readonly IJwtTokenService _jwtTokenService;
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
 
-
-        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IJwtTokenService jwtTokenService, AuthService authService)
+        public AuthController(IAuthService authService)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _jwtTokenService = jwtTokenService;
             _authService = authService;
         }
 
@@ -51,16 +44,14 @@ namespace ECommerceApi.Controllers
         {
             try
             {
-                var token = await _authService.RegisterAsync(registerModel.Email, registerModel.Password);
-                Console.WriteLine(string.Join("=",30));
-                Console.WriteLine(token);
-                Console.WriteLine(string.Join("=",30));
-                return Ok(new { Token = token });
+                var confirm = await _authService.RegisterAsync(registerModel.Email, registerModel.Password);
+                return Ok(new { Message = "Confirmação enviada por e-mail." });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { Message = ex.Message });
+                return BadRequest(new { Message = "Erro interno: " + ex.Message });
             }
         }
+
     }
 }
